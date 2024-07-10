@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body{
+  background-color: #0a0a0a;
+}
+
+/* Zmienia wygląd paska przewijania */
+::-webkit-scrollbar {
+  width: 8px; /* szerokość paska przewijania */
+}
+
+/* Zmienia wygląd tła paska przewijania */
+::-webkit-scrollbar-track {
+  background: #27272a; /* kolor tła */
+}
+
+/* Zmienia wygląd suwaka paska przewijania */
+::-webkit-scrollbar-thumb {
+  background: #6b7280; /* kolor suwaka */
+  border-radius: 5px; /* zaokrąglenie rogu suwaka */
+}
+
+/* Zmienia wygląd suwaka paska przewijania podczas najechania kursorem */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* kolor suwaka podczas najechania kursorem */
+}
