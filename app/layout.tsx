@@ -5,6 +5,7 @@ import Sidebar from "./components/sidebar";
 import Providers from "./providers/provider";
 import PlayBar from "./components/playbar";
 import AlbumView from "./components/albumView";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
+        <SpeedInsights />
         <Providers>
           <div className="flex h-svh pb-24">
             <div className="">
