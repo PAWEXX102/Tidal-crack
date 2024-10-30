@@ -9,7 +9,11 @@ const config: Config = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      gridTemplateColumns: { "25": "repeat(25, minmax(0, 1fr))" },
+      gridTemplateRows: { "25": "repeat(25, minmax(0, 1fr))" },
+      gridColumn: { "span-15": "span 15 / span 15" },
+    },
   },
   darkMode: "class",
   plugins: [nextui()],

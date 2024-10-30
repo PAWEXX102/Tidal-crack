@@ -1,16 +1,34 @@
+"use client";
 
-import Account from "./account";
 import MainLinks from "./mainLinks";
-import UserLinks from "./userLinks";
-import Playlists from "./playlistsBar";
-
+import User from "./user";
+import { useEffect, useState } from "react";
 
 export default function Sidebar() {
+  const [width, setWidth] = useState(0);
 
-  return <main className=" bg-zinc-800 p-4 h-screen w-[15rem] flex flex-col gap-y-10">
-    <Account />
-    <MainLinks />
-    <UserLinks />
-    <Playlists />
-  </main>;
+  useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Initial width setting
+    handleResize();
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+  return (
+    <main
+      className={` bg-zinc-800 ${width >= 1200 ? "w-[24rem]" : "w-[7rem]"} ${
+        width <= 950 && "hidden"
+      } p-4 h-full flex flex-col gap-y-10`}
+    >
+      <MainLinks />
+    </main>
+  );
 }

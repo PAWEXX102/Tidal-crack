@@ -2,14 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-
-body{
+body {
   background-color: #0a0a0a;
 }
 
 /* Zmienia wygląd paska przewijania */
 ::-webkit-scrollbar {
-  width: 8px; /* szerokość paska przewijania */
+  width: 5px; /* szerokość paska przewijania */
 }
 
 /* Zmienia wygląd tła paska przewijania */
@@ -19,11 +18,20 @@ body{
 
 /* Zmienia wygląd suwaka paska przewijania */
 ::-webkit-scrollbar-thumb {
-  background: #6b7280; /* kolor suwaka */
+  background: #627280; /* kolor suwaka */
   border-radius: 5px; /* zaokrąglenie rogu suwaka */
 }
 
 /* Zmienia wygląd suwaka paska przewijania podczas najechania kursorem */
 ::-webkit-scrollbar-thumb:hover {
   background: #555; /* kolor suwaka podczas najechania kursorem */
+}
+
+.custom-scrollbar {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }
