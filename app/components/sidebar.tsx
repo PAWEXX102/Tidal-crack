@@ -3,6 +3,7 @@
 import MainLinks from "./mainLinks";
 import User from "./user";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Sidebar() {
   const [width, setWidth] = useState(0);

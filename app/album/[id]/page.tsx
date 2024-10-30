@@ -12,6 +12,7 @@ import { collection, doc, getDoc } from "firebase/firestore";
 import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "@/app/services/firebase";
 import SongItem from "@/app/components/songitem";
+import Repeat from "@/public/repeat";
 
 export default function Album({
   params,
@@ -20,8 +21,19 @@ export default function Album({
   const [imageUrl, setImageUrl] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [width, setWidth] = useState(0);
-  const { setSongs, setIsPlaying, setAlbum, setArtist, album:albumName, isPlaying } =
-    useAudio();
+  const {
+    setSongs,
+    setIsPlaying,
+    setAlbum,
+    setArtist,
+    setCurrentAlbum,
+    setIsLooping,
+    setAlbumId,
+    isLooping,
+    currentAlbum,
+    album: albumName,
+    isPlaying,
+  } = useAudio();
   const [AlbumInfo, setAlbumInfo] = useState({
     Title: "",
     Artist: "",
@@ -99,6 +111,7 @@ export default function Album({
       setIsLoading(false);
       setAlbum(album.album.Title);
       setArtist(album.album.Artist);
+      setAlbumId(params.id);
     }
     fetchData();
   }, []);
@@ -130,9 +143,17 @@ export default function Album({
     }
   };
 
-  console.log(AlbumInfo);
-
-  albumName == AlbumInfo?.Title && console.log("Playing", albumName);
+  const actionImage = () => {
+    if (currentAlbum == AlbumInfo?.Title) {
+      if (isPlaying) {
+        return "/stop2.svg";
+      } else {
+        return "/play2.svg";
+      }
+    } else {
+      return "/play2.svg";
+    }
+  };
   return (
     <main className="relative bg-black w-full h-full overflow-auto">
       <div
@@ -219,23 +240,25 @@ export default function Album({
         <div className=" bg-black opacity-15 w-full h-full absolute"></div>
         <div className=" p-10 z-20 w-full h-max items-center flex gap-x-10">
           <Image
-            src={albumName == AlbumInfo?.Title ? "/stop2.svg" : "/play2.svg"}
+            src={actionImage()}
             alt="Action"
             width={70}
             onClick={() => {
               setSongs(AlbumInfo?.Songs);
               setIsPlaying(playing());
+              setCurrentAlbum(AlbumInfo?.Title);
             }}
             height={70}
             className=" hover:scale-110 active:scale-90 transition-all cursor-pointer"
           />
-          <Image
-            src="/repeatWhite.svg"
-            alt="Repeat"
-            width={50}
-            height={70}
-            className=" hover:scale-110 active:scale-90 transition-all cursor-pointer"
-          />
+          <Button
+            isIconOnly
+            size="lg"
+            variant="light"
+            onClick={() => setIsLooping(!isLooping)}
+          >
+            <Repeat fill={isLooping ? "#67e8f9" : "#FFF"} size={70} />
+          </Button>
         </div>
         <div className=" p-10 z-20 w-full flex h-max flex-col gap-y-5">
           <div className=" text-zinc-400 px-3 font-semibold z-10 w-full grid grid-cols-25 h-max">
@@ -257,7 +280,7 @@ export default function Album({
           <div className=" w-full h-[2px] rounded-full bg-zinc-400"></div>
           <div className=" flex flex-col w-full gap-y-3 h-full">
             {AlbumInfo?.Songs.map((song, index) => (
-              <SongItem key={index} title={song} index={index + 1} />
+              <SongItem key={index} title={song} index={index + 1} id={params.id} />
             ))}
           </div>
         </div>

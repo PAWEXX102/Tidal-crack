@@ -22,7 +22,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className=" text-white items-start gap-x-[26px] overflow-auto w-full h-full flex flex-wrap px-8 pt-8 flex-shrink-1 content-start">
+    <main className=" text-white items-start gap-x-[26px] overflow-auto w-full h-full flex flex-wrap p-[6rem] flex-shrink-1 content-start">
       {albums.map((album) => (
         <AlbumCover
           key={album.id}

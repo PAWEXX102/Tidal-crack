@@ -20,7 +20,18 @@ export default function AlbumCover({
 }) {
   const [url, setUrl] = useState<string>("");
   const [hover, setHover] = useState(false);
-  const { setSongs, setIsPlaying, setAlbum, setArtist } = useAudio();
+  const {
+    setSongs,
+    setIsPlaying,
+    setAlbum,
+    isPlaying,
+    setArtist,
+    setCurrentAlbum,
+    setCurrentArtist,
+    setAlbumId,
+    setQueue,
+    currentAlbum,
+  } = useAudio();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -31,6 +42,18 @@ export default function AlbumCover({
 
     fetchImage();
   }, [title]);
+
+  const actionImage = () => {
+    if (currentAlbum == title) {
+      if (isPlaying) {
+        return "/stop2.svg";
+      } else {
+        return "/play2.svg";
+      }
+    } else {
+      return "/play2.svg";
+    }
+  };
 
   return (
     <Link
@@ -61,10 +84,14 @@ export default function AlbumCover({
             setIsPlaying(true);
             setAlbum(title);
             setArtist(artist);
+            setCurrentAlbum(title);
+            setCurrentArtist(artist);
+            setAlbumId(id);
+            setQueue(0);
           }}
         >
           <Image
-            src="/play2.svg"
+            src={actionImage()}
             alt="Play"
             width={80}
             height={80}

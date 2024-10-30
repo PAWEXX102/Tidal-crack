@@ -10,7 +10,8 @@ import { getDownloadURL, ref } from "firebase/storage";
 export default function SongItem({
   title,
   index,
-}: Readonly<{ title: string; index: number }>) {
+  id,
+}: Readonly<{ title: string; index: number; id: string }>) {
   const {
     setSongs,
     setIsPlaying,
@@ -20,6 +21,9 @@ export default function SongItem({
     album,
     queue,
     setQueue,
+    setCurrentAlbum,
+    currentArtist,
+    setCurrentArtist,
   } = useAudio();
   const [song, setSong] = useState({
     plays: 0,
@@ -27,6 +31,8 @@ export default function SongItem({
     duration: 0,
     feat: [],
   });
+
+  const [songsArray, setSongsArray] = useState({ songs: [] });
 
   const [hover, setHover] = useState(false);
   const [width, setWidth] = useState(0);
@@ -38,8 +44,7 @@ export default function SongItem({
   };
 
   const playing = () => {
-    if (AudioTitle[0] == title) {
-      console.log("Playing");
+    if (AudioTitle[queue] == title) {
       if (isPlaying) {
         return false;
       } else {
@@ -68,6 +73,10 @@ export default function SongItem({
 
   const fetchSong = async () => {
     let song = { plays: 0, indecent: false, duration: 0, feat: [] };
+    let songsArray = { songs: [] };
+    const albumRef = doc(collection(db, "albums"), id);
+    const albumSnapshot = await getDoc(albumRef);
+    const albumData = albumSnapshot.data();
     const songRef = doc(collection(db, "songs"), artist, album, title);
     const songSnapshot = await getDoc(songRef);
     const songData = songSnapshot.data();
@@ -85,7 +94,11 @@ export default function SongItem({
       feat: songData?.feat,
       duration: duration,
     };
-    return { song };
+    songsArray = {
+      songs: albumData?.Songs,
+    };
+
+    return { song, songsArray };
   };
 
   const updatePlays = async () => {
@@ -109,6 +122,7 @@ export default function SongItem({
     async function fetchData() {
       const song = await fetchSong();
       setSong(song.song);
+      setSongsArray(song.songsArray);
     }
     fetchData();
   }, []);
@@ -116,8 +130,11 @@ export default function SongItem({
   return (
     <div
       onDoubleClick={() => {
-        setSongs([title]);
+        setSongs(songsArray.songs);
         setIsPlaying(playing());
+        setCurrentAlbum(album);
+        setCurrentArtist(artist);
+        setQueue(index - 1);
         updatePlays();
       }}
       onMouseEnter={() => setHover(true)}
@@ -128,13 +145,20 @@ export default function SongItem({
         isIconOnly
         variant="light"
         onClick={() => {
-          setSongs([title]);
+          setSongs(songsArray.songs);
           setIsPlaying(playing());
+          setCurrentAlbum(album);
+          setQueue(index - 1);
+          setCurrentArtist(artist);
           updatePlays();
         }}
       >
         <Image
-          src={AudioTitle[queue] == title && isPlaying ? "/stop2.svg" : "/play2.svg"}
+          src={
+            AudioTitle[queue] == title && isPlaying
+              ? "/stop2.svg"
+              : "/play2.svg"
+          }
           alt="Action"
           width={30}
           height={30}
@@ -146,7 +170,9 @@ export default function SongItem({
           width={30}
           height={30}
           className={`${
-            hover ? "hidden" : `${AudioTitle[queue] == title ? "block" : "hidden"}`
+            hover
+              ? "hidden"
+              : `${AudioTitle[queue] == title ? "block" : "hidden"}`
           }`}
         />
       </Button>

@@ -9,14 +9,27 @@ import Repeat from "@/public/repeat";
 import { db, storage } from "../services/firebase";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { getDownloadURL, ref } from "firebase/storage";
+import { useRouter } from "next/navigation";
 
 export default function PlayBar() {
-  const [volume, setVolume] = useState(0);
+  const [volume, setVolume] = useState(20);
   const [width, setWidth] = useState(0);
+  const router = useRouter();
   const [currentTime, setCurrentTime] = useState(0);
-  const { songs, isPlaying, setIsPlaying, artist, album, queue, setQueue } =
-    useAudio();
-  const [isLooped, setIsLooped] = useState(false);
+  const {
+    songs,
+    isPlaying,
+    setIsPlaying,
+    artist,
+    album,
+    currentArtist,
+    setCurrentArtist,
+    queue,
+    setQueue,
+    setIsLooping,
+    isLooping,
+    albumId,
+  } = useAudio();
   const [soundUrl, setSoundUrl] = useState("");
   const [albumUrl, setAlbumUrl] = useState("");
   const refAudio = useRef<HTMLAudioElement>(null);
@@ -27,14 +40,16 @@ export default function PlayBar() {
   });
 
   const fetchSong = async () => {
-    console.log(artist, album, songs);
     let song = { indecent: false, duration: 0, feat: [] };
-    if (!artist || !album || !songs) return { song, url: "", albumUrl: "" };
-    console.log(artist, album, songs[queue]);
+    if (!artist || !currentArtist || !album || !songs)
+      return { song, url: "", albumUrl: "" };
     if (queue >= songs.length) {
       console.log("Queue is empty");
       refAudio.current?.pause();
-      return { song, url: "", albumUrl: "" };
+      setIsPlaying(false);
+      setCurrentArtist("");
+      handleSliderChange(0);
+      return { song, url: "", albumUrl: "/logo.svg" };
     }
     const songRef = doc(collection(db, "songs"), artist, album, songs[queue]);
     const songSnapshot = await getDoc(songRef);
@@ -54,14 +69,10 @@ export default function PlayBar() {
       feat: songData?.feat,
       duration: duration,
     };
-
-    console.log(song);
-    console.log(soundUrl);
     return { song, url: soundUrl, albumUrl: albumUrl };
   };
 
   const handlePlayPause = () => {
-    console.log(isPlaying);
     if (refAudio.current && song?.duration > 0) {
       if (isPlaying) {
         console.log("Pause");
@@ -72,13 +83,16 @@ export default function PlayBar() {
         setIsPlaying(true);
         refAudio.current.play();
       }
-      console.log(isPlaying);
     }
   };
 
   useEffect(() => {
-    if (currentTime >= song?.duration && song?.duration > 0) {
-      setQueue(queue + 1);
+    if (currentTime >= song?.duration && song?.duration > 0 && !isLooping) {
+      if (songs.length >= queue + 1) {
+        setQueue(queue + 1);
+      } else {
+        setQueue(0);
+      }
     }
   }, [currentTime]);
 
@@ -90,10 +104,7 @@ export default function PlayBar() {
 
   const handleTimeUpdate = () => {
     if (refAudio.current) {
-      console.log(refAudio.current?.currentTime);
       setCurrentTime(refAudio.current.currentTime);
-    } else {
-      throw new Error("Audio element not found");
     }
   };
 
@@ -192,8 +203,8 @@ export default function PlayBar() {
       setSoundUrl(song.url || "");
       setAlbumUrl(song.albumUrl || "");
     }
-    console.log(songs)
-    console.log(queue)
+    console.log(songs);
+    console.log(queue);
     fetchData();
   }, [songs, queue]);
 
@@ -212,7 +223,7 @@ export default function PlayBar() {
           className=" absolute"
           src={soundUrl}
           ref={refAudio}
-          loop={isLooped}
+          loop={isLooping}
         />
       )}
       <div className=" h-full min-w-[26rem] ju w-full items-center flex gap-x-4">
@@ -225,11 +236,12 @@ export default function PlayBar() {
           radius="sm"
           className=" cursor-pointer"
           isZoomed
+          onClick={() => router.push(`/album/${albumId}`)}
         />
         <div className=" flex flex-col items-start text-center">
           <div className=" flex items-center text-lg font-semibold gap-x-2">
             <h1 className=" text-medium font-semibold">
-              {songs[queue] || "Astroworld"}
+              {songs[queue] || "Melodrive"}
             </h1>
             {song.indecent && (
               <div className=" bg-zinc-700 px-[6px] rounded-sm text-sm">E</div>
@@ -239,7 +251,7 @@ export default function PlayBar() {
             </div>
           </div>
           <h2 className=" text-sm font-semibold hover:underline cursor-pointer text-zinc-400">
-            {artist}
+            {currentArtist || "P4W3XX"}
             {song?.feat?.length > 0 && (
               <span className=" text-zinc-400">
                 {song.feat.map((feat) => ` , ${feat}`)}
@@ -272,11 +284,11 @@ export default function PlayBar() {
             <Image src="/nextward.svg" alt="Next" width={30} height={30} />
           </Button>
           <Button
-            onClick={() => setIsLooped(!isLooped)}
+            onClick={() => setIsLooping(!isLooping)}
             isIconOnly
             variant="light"
           >
-            <Repeat fill={isLooped ? "#67e8f9" : "#a1a1aa"} size={30} />
+            <Repeat fill={isLooping ? "#67e8f9" : "#a1a1aa"} size={30} />
           </Button>
         </div>
         <Slider
