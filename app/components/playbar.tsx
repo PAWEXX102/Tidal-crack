@@ -307,7 +307,7 @@ export default function PlayBar() {
           aria-label="Volume"
           value={volume}
           onChange={(value) => {
-            setVolume(value);
+            setVolume(Array.isArray(value) ? value[0] : value);
             handleVolume();
           }}
           showOutline
